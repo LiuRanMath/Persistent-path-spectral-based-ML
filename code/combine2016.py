@@ -56,9 +56,7 @@ def gradient_boosting(X_train,Y_train,X_test,Y_test):
     pearson_coorelation = sp.stats.pearsonr(Y_test,regr.predict(X_test))
     mse1 = mean_squared_error(Y_test, regr.predict(X_test))
     mse2 = pow(mse1,0.5)
-    #mse3 = mse2/0.7335
-    mse3 = mse2
-    return [pearson_coorelation[0],mse3]
+    return [pearson_coorelation[0],mse2]
 
 
 def get_pearson_correlation(hop):
