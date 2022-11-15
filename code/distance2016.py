@@ -6,7 +6,7 @@ Created on Mon May 2 20:12:22 2022
 
 """
 
-
+import os
 import numpy as np
 import scipy as sp
 from sklearn.ensemble import GradientBoostingRegressor
@@ -106,12 +106,13 @@ def pocket_coordinate(name,P_atom,L_atom,cutoff):
                 break
         
     all_atom = np.array(p_list2 + l_list)
-    filename = './pocket_coordinate_distance/'  + name + '_' + 'Protein_' + P_atom + '_' + 'Ligand_' + L_atom + '_coordinate.csv'
+    filename = './euclid_atom_combination/'  + name + '/' + 'Protein_' + P_atom + '_' + 'Ligand_' + L_atom + '_coordinate.csv'
     np.savetxt(filename , all_atom , delimiter = ',')
 
 def write_pocket_coordinate_to_file(end,cutoff):
     for i in range(end):
         name = all_data[i]
+        os.mkdir('./euclid_atom_combination/' +name)
         for P_atom in Protein_Atom:
             for L_atom in Ligand_Atom:
                 pocket_coordinate(name,P_atom,L_atom,cutoff)
@@ -258,7 +259,7 @@ def get_feature(name,max_filtration,step,k):
     for P_atom in Protein_Atom: 
         for L_atom in Ligand_Atom:
             
-            filename = './pocket_coordinate_distance/'  + name + '_' + 'Protein_' + P_atom + '_' + 'Ligand_' + L_atom + '_coordinate.csv'
+            filename = './euclid_atom_combination /'  + name + '/' + 'Protein_' + P_atom + '_' + 'Ligand_' + L_atom + '_coordinate.csv'
             point_cloud = np.loadtxt(filename,delimiter = ',')
             if judge_complex(point_cloud) == 0:
                 for item in range(n):
@@ -286,15 +287,15 @@ def get_feature(name,max_filtration,step,k):
                 vertex_hopping_3_eigenvalue = get_eigenvalue(vertex_lap_matrix3)
                 vertexmatrix3.append(vertex_hopping_3_eigenvalue[1])
     
-    feature_file1 = './distance/' + name + '_hop1_eigenvalue.txt'
+    feature_file1 = './euclid_eigenvalue/' + name + '_hop1.txt'
     f = open(feature_file1,'w')
     f.writelines(str(vertexmatrix1))
     f.close()
-    feature_file2 = './distance/' + name + '_hop2_eigenvalue.txt'
+    feature_file2 = './euclid_eigenvalue/' + name + '_hop2.txt'
     f = open(feature_file2,'w')
     f.writelines(str(vertexmatrix2))
     f.close()
-    feature_file3 = './distance/' + name + '_hop3_eigenvalue.txt'
+    feature_file3 = './euclid_eigenvalue/' + name + '_hop3.txt'
     f = open(feature_file3,'w')
     f.writelines(str(vertexmatrix3))
     f.close()
@@ -321,7 +322,7 @@ def get_mean(ls):
 def get_eigenvalue_median_and_mean(name,hop):
     matrix1 = np.zeros((1,36*100))
     matrix2 = np.zeros((1,36*100))
-    nonzero_file = './distance/' + name + '_hop' + str(hop) + '_eigenvalue.txt'
+    nonzero_file = './euclid_eigenvalue/' + name + '_hop' + str(hop) + '.txt'
     f = open(nonzero_file)
     pre_nonzero_eigenvalue = f.readlines()
     nonzero = eval(pre_nonzero_eigenvalue[0])
@@ -335,12 +336,12 @@ def get_eigenvalue_median_and_mean(name,hop):
         matrix2[0][count2] = get_mean(nonzero_list)
         count2 = count2 + 1
         
-    file1 = './distance/' + name + '_hop' + str(hop) + '_eigenvalue_median.csv'
+    file1 = './euclid_eigenvalue/' + name + '_hop' + str(hop) + '_median.csv'
     np.savetxt(file1 , matrix1 , delimiter = ',')        
-    file2 = './distance/' + name + '_hop' + str(hop) + '_eigenvalue_mean.csv'
+    file2 = './euclid_eigenvalue/' + name + '_hop' + str(hop) + '_mean.csv'
     np.savetxt(file2 , matrix2 , delimiter = ',')
     
-def feature_to_file(start,end):
+def attribute_to_file(start,end):
     for i in range(start,end):
         name = all_data[i]
         for hop in [1,2,3]:
@@ -350,10 +351,10 @@ def feature_to_file(start,end):
 def pocket_test_feature(hop,typ):
     matrix = []
     for name in test_data:
-        feature_file = './diatance/' + name + '_hop'+ str(hop) +'_eigenvalue_' + typ + '.csv'
+        feature_file = './euclid_eigenvalue/' + name + '_hop'+ str(hop) +'_' + typ + '.csv'
         feature = np.loadtxt(feature_file,delimiter = ',')
         matrix.append(feature.tolist())
-    feature_file = './pocket_feature/distance_test_' + typ + '_hop' + str(hop)  +'.csv'
+    feature_file = './euclid_feature/test_hop' + str(hop) + '_' + typ +'.csv'
     np.savetxt(feature_file , np.array(matrix) , delimiter = ',')
     print(np.array(matrix).shape)
     
@@ -361,45 +362,45 @@ def pocket_test_feature(hop,typ):
 def pocket_train_feature(hop,typ):
     matrix = []
     for name in train_data:
-        feature_file = './distance/' + name + '_hop'+ str(hop) +'_eigenvalue_' + typ + '.csv'
+        feature_file = './euclid_eigenvalue/' + name + '_hop'+ str(hop) +'_' + typ + '.csv'
         feature = np.loadtxt(feature_file,delimiter = ',')
         matrix.append(feature.tolist())
-    feature_file = './pocket_feature/distance_train_' + typ + '_hop' + str(hop)  +'.csv'
+    feature_file = './euclid_feature/train_hop' + str(hop) + '_' + typ +'.csv'
     np.savetxt(feature_file , np.array(matrix) , delimiter = ',')
     print(np.array(matrix).shape)   
     
 def get_combined_feature(typ):
-    feature_file = './pocket_feature/distance_' + typ + '_median_hop1'  +'.csv'
+    feature_file = './euclid_feature/' + typ + 'hop1_median.csv'
     feature1 = np.loadtxt(feature_file,delimiter = ',')
-    feature_file = './pocket_feature/distance_' + typ + '_median_hop2'  +'.csv'
+    feature_file = './euclid_feature/' + typ + 'hop2_median.csv'
     feature2 = np.loadtxt(feature_file,delimiter = ',')
-    feature_file = './pocket_feature/distance_' + typ + '_median_hop3'  +'.csv'
+    feature_file = './euclid_feature/' + typ + 'hop3_median.csv'
     feature3 = np.loadtxt(feature_file,delimiter = ',')
-    feature_file = './pocket_feature/distance_' + typ + '_mean_hop1'  +'.csv'
+    feature_file = './euclid_feature/' + typ + 'hop1_mean.csv'
     feature4 = np.loadtxt(feature_file,delimiter = ',')
-    feature_file = './pocket_feature/distance_' + typ + '_mean_hop2'  +'.csv'
+    feature_file = './euclid_feature/' + typ + 'hop2_mean.csv'
     feature5 = np.loadtxt(feature_file,delimiter = ',')
-    feature_file = './pocket_feature/distance_' + typ + '_mean_hop3'  +'.csv'
+    feature_file = './euclid_feature/' + typ + 'hop3_mean.csv'
     feature6 = np.loadtxt(feature_file,delimiter = ',')
     
     feature_hop1 = np.hstack((feature1,feature4))
-    filename = './pocket_feature/distance_' + typ + '_mm_hop1.csv'
+    filename = './euclid_feature/' + typ + 'hop1_mm.csv'
     np.savetxt(filename,feature_hop1,delimiter=',')
     
     feature_hop2 = np.hstack((feature2,feature5))
-    filename = './pocket_feature/distance_' + typ + '_mm_hop2.csv'
+    filename = './euclid_feature/' + typ + 'hop2_mm.csv'
     np.savetxt(filename,feature_hop2,delimiter=',')
     
     feature_hop3 = np.hstack((feature3,feature6))
-    filename = './pocket_feature/distance_' + typ + '_mm_hop3.csv'
+    filename = './euclid_feature/' + typ + 'hop3_mm.csv'
     np.savetxt(filename,feature_hop3,delimiter=',')
     
     feature_hop12 = np.hstack((feature1,feature2,feature4,feature5))
-    filename = './pocket_feature/distance_' + typ + '_mm_hop12.csv'
+    filename = './euclid_feature/' + typ + 'hop12_mm.csv'
     np.savetxt(filename,feature_hop12,delimiter=',')
     
     feature_hop123 = np.hstack((feature1,feature2,feature3,feature4,feature5,feature6))
-    filename = './pocket_feature/distance_'  + typ + '_mm_hop123.csv'
+    filename = './euclid_feature/' + typ + 'hop123_mm.csv'
     np.savetxt(filename,feature_hop123,delimiter=',')
     
 def get_name_index(name,contents):
@@ -420,7 +421,7 @@ def get_target_matrix_of_train():
         index = get_name_index(name,contents)
         target_matrix[i][0] = float(contents[index][18:23])
         
-    target_file = './pocket_feature/train_target.csv'
+    target_file = './euclid_feature/train_target.csv'
     np.savetxt(target_file , target_matrix , delimiter = ',')  
        
 
@@ -436,7 +437,7 @@ def get_target_matrix_of_test():
         index = get_name_index(name,contents)
         target_matrix[i][0] = float(contents[index][18:23])
         
-    target_file = './pocket_feature/test_target.csv'
+    target_file = './euclid_feature/test_target.csv'
     np.savetxt(target_file , target_matrix , delimiter = ',')  
     
 
@@ -453,10 +454,10 @@ def gradient_boosting(X_train,Y_train,X_test,Y_test):
 
 
 def get_pearson_correlation(hop):
-    feature_matrix_of_train = np.loadtxt( './pocket_feature/distance_train_mm_hop'+ str(hop) +'.csv',delimiter=',' )
-    target_matrix_of_train = np.loadtxt( './pocket_feature/train_target.csv',delimiter=',' )
-    feature_matrix_of_test = np.loadtxt( './pocket_feature/distance_test_mm_hop'+ str(hop) +'.csv',delimiter=',' )
-    target_matrix_of_test = np.loadtxt( './pocket_feature/test_target.csv',delimiter=',' )
+    feature_matrix_of_train = np.loadtxt( './euclid_feature/train_hop'+ str(hop) +'_mm.csv',delimiter=',' )
+    target_matrix_of_train = np.loadtxt( './euclid_feature/train_target.csv',delimiter=',' )
+    feature_matrix_of_test = np.loadtxt( './euclid_feature/test_hop'+ str(hop) +'_mm.csv',delimiter=',' )
+    target_matrix_of_test = np.loadtxt( './euclid_feature/test_target.csv',delimiter=',' )
     number = 10
     P = np.zeros((number,1))
     M = np.zeros((number,1))
@@ -469,7 +470,7 @@ def get_pearson_correlation(hop):
         print(P[i])
     median_p = np.median(P)
     median_m = np.median(M)
-    print('for data 2016 , 10 results for distance-model are:')
+    print('for data 2016 , 10 results for euclid distance-model are:')
     print(P)
     print('median pearson correlation values are')
     print(median_p)
@@ -484,7 +485,7 @@ def run_PDBbind_2016():
     #nonzero eigenvalues to file
     eigenvalue_to_file(0,4057,10,0.1,3)
     #obtain associated median and mean
-    feature_to_file(0,4057)
+    attribute_to_file(0,4057)
     
     #pocket test/train feature
     for hop in [1,2,3]:
@@ -501,6 +502,10 @@ def run_PDBbind_2016():
     get_target_matrix_of_test()
     
     # machine learning
+    get_pearson_correlation(1)
+    get_pearson_correlation(2)
+    get_pearson_correlation(3)
+    get_pearson_correlation(12)
     get_pearson_correlation(123)
             
     
