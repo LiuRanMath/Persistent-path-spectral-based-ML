@@ -60,4 +60,4 @@ def gradient_boosting(X_train,Y_train,X_test,Y_test)
 The above function can be found in "code/euclid2007.py"
 
 ## A easier way to reproduce our results
-We have provided all the data needed for PDBbind-v2007. You can directly run the script "code/euclid2007.py" to get our results for PDBbind-v2007.
+We have provided all the data needed for PDBbind-v2007. You can firstly unzip the zip file "data/2007/refined-set.zip", then you can directly run the script "code/euclid2007.py" to get our results for PDBbind-v2007.
